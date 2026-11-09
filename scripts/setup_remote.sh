@@ -22,6 +22,7 @@ source "$WORK/venv/bin/activate"
 uv pip install "vllm==${VLLM_VERSION}" --torch-backend="${TORCH_BACKEND}"
 uv pip install -e ".[gpu,dev]" --torch-backend="${TORCH_BACKEND}"
 uv pip install -U "huggingface_hub[cli]"
+python scripts/patch_vllm.py
 
 # Nsight Systems CLI for timeline profiling (Nsight Compute ships with the CUDA devel image if present).
 if ! command -v nsys >/dev/null; then

@@ -120,6 +120,7 @@ def acceptance_from_metrics(before: dict, after: dict) -> dict:
         "draft_tokens": draft_tok,
         "accepted_tokens": accepted,
         "acceptance_rate": accepted / draft_tok if draft_tok else float("nan"),
+        "mean_k": draft_tok / drafts,  # effective speculation length actually used
         "mean_acceptance_length": 1.0 + accepted / drafts,
     }
 
