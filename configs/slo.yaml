@@ -1,0 +1,4 @@
+# SLOs are fixed from baseline (no-SD) measurements before any policy is evaluated. Do not edit afterwards.
+ttft_ms: TODO
+tpot_ms: TODO
+derived_from: TODO   # run id / W&B link of the baseline used

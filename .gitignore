@@ -1,0 +1,45 @@
+# ---- Private, never pushed ----
+EXPERIMENT_LOG.md
+WRITING_STYLE.md
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+# Course handout and proposal PDFs stay local
+HPML-Final-Project-Fall2026.pdf
+HPML_Project_Proposal.pdf
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ---- Secrets / env ----
+.env
+*.env
+secrets/
+
+# ---- Large or regenerable artifacts ----
+data/raw/*
+data/processed/*
+data/traces/*
+results/raw/*
+!**/.gitkeep
+*.nsys-rep
+*.ncu-rep
+*.qdrep
+*.sqlite
+*.pt.trace.json
+*.pt.trace.json.gz
+wandb/
+hf_cache/
+logs/
+
+# ---- OS / editors ----
+.DS_Store
+.vscode/
+.idea/

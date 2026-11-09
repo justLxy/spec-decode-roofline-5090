@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "specdec5090"
+version = "0.1.0"
+description = "Roofline-guided speculation-length control for EAGLE-3 in vLLM on an RTX 5090"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "pyyaml",
+]
+
+[project.optional-dependencies]
+gpu = [
+  "vllm==0.29.0",
+  "wandb",
+  "lm-eval",
+  "datasets",
+  "matplotlib",
+  "statsmodels",
+]
+dev = ["pytest", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110

@@ -1,0 +1,11 @@
+# Batch-size table from the vLLM v0.29.0 "Dynamic speculative decoding" docs (EAGLE-3 example, H100 reference).
+# Each entry: [start_bs, end_bs, K]. Used unchanged as the "documented table" baseline.
+source: https://docs.vllm.ai/en/v0.29.0/features/speculative_decoding/dynamic_speculative_decoding/
+method: eagle3
+num_speculative_tokens: 3
+num_speculative_tokens_per_batch_size:
+  - [1, 16, 5]
+  - [17, 32, 4]
+  - [33, 64, 3]
+  - [65, 128, 1]
+  - [129, 512, 0]
