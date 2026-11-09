@@ -6,7 +6,7 @@ set -euo pipefail
 WORK=${WORK:-/workspace}
 VLLM_VERSION=${VLLM_VERSION:-0.29.0}
 TORCH_BACKEND=${TORCH_BACKEND:-cu129}
-export HF_HOME=${HF_HOME:-$WORK/hf_cache}
+export HF_HOME=${HF_HOME:-$WORK/.hf_home}
 
 mkdir -p "$WORK" "$HF_HOME"
 cd "$WORK/hpml" 2>/dev/null || { echo "Expected repo at $WORK/hpml"; exit 1; }
