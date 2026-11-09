@@ -34,6 +34,10 @@ CONFIGS = [
     ServerConfig("eagle3_k0_table", num_spec_tokens=1, per_batch_table=[[1, 512, 0]]),
     ServerConfig("eagle3_doc_table_mrv1", num_spec_tokens=3, per_batch_table=DOC_TABLE, model_runner_v2=False),
     ServerConfig("eagle3_k3_mrv2", num_spec_tokens=3, model_runner_v2=True),
+    ServerConfig("eagle3_doc_table_mrv2", num_spec_tokens=3, per_batch_table=DOC_TABLE, model_runner_v2=True),
+    ServerConfig("eagle3_k0_table_mrv1", num_spec_tokens=1, per_batch_table=[[1, 512, 0]], model_runner_v2=False),
+    ServerConfig("eagle3_k3_mrv1", num_spec_tokens=3, model_runner_v2=False),
+    ServerConfig("nosd_mrv1", model_runner_v2=False),
 ]
 
 PROMPT = "Explain in three sentences why the sky is blue."
