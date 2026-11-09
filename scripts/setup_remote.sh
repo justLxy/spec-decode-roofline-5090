@@ -20,7 +20,8 @@ uv venv --python 3.12 "$WORK/venv"
 # shellcheck disable=SC1091
 source "$WORK/venv/bin/activate"
 uv pip install "vllm==${VLLM_VERSION}" --torch-backend="${TORCH_BACKEND}"
-uv pip install -e ".[gpu,dev]"
+uv pip install -e ".[gpu,dev]" --torch-backend="${TORCH_BACKEND}"
+uv pip install -U "huggingface_hub[cli]"
 
 # Nsight Systems CLI for timeline profiling (Nsight Compute ships with the CUDA devel image if present).
 if ! command -v nsys >/dev/null; then
