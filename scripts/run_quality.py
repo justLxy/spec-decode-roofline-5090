@@ -28,11 +28,28 @@ from specdec5090.analysis.stats import paired_bootstrap_diff  # noqa: E402
 from specdec5090.bench.server import SERVED_NAME, TARGET_DIR, ServerConfig, VllmServer  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
-TASKS = {"gsm8k_cot_llama": "exact_match", "humaneval_instruct": "pass@1"}
+TASKS = {"gsm8k_cot_llama": "exact_match", "humaneval_instruct_vllm": "pass@1"}
+
+
+def write_custom_tasks(dirpath: Path) -> Path:
+    """humaneval_instruct with four stop strings: vLLM's completions endpoint accepts at most four ("\\nprint" is
+    dropped; a top-level print after the function does not change the test outcome)."""
+    import lm_eval
+
+    src = Path(lm_eval.__file__).parent / "tasks" / "humaneval" / "humaneval_instruct.yaml"
+    dirpath.mkdir(parents=True, exist_ok=True)
+    (dirpath / "humaneval_instruct_vllm.yaml").write_text(
+        f"include: {src}\n"
+        "task: humaneval_instruct_vllm\n"
+        "generation_kwargs:\n"
+        '  until: ["\\nclass", "\\ndef", "\\n#", "\\nif"]\n'
+        "  max_gen_toks: 1024\n"
+        "  do_sample: false\n")
+    return dirpath
 MARGIN_PP = -1.0
 
 
-def run_lm_eval(port: int, task: str, out: Path, concurrency: int) -> None:
+def run_lm_eval(port: int, task: str, out: Path, concurrency: int, include: Path | None = None) -> None:
     # humaneval_instruct ends the chat with a partial assistant turn ("Here is the completed function: ```python
     # <signature>") that the model must continue. The OpenAI chat endpoint treats it as a finished message, so the
     # model restarts the code block and hits the "\ndef" stop string with an empty body. Rendering the chat template
@@ -51,6 +68,8 @@ def run_lm_eval(port: int, task: str, out: Path, concurrency: int) -> None:
         cmd.append("--fewshot_as_multiturn")
     if task.startswith("humaneval"):
         cmd.append("--confirm_run_unsafe_code")
+    if include is not None:
+        cmd += ["--include_path", str(include)]
     env = dict(os.environ, HF_ALLOW_CODE_EVAL="1")
     subprocess.run(cmd, check=True, env=env)
 
@@ -80,6 +99,7 @@ def main() -> None:
     ts = time.strftime("%Y%m%d_%H%M%S")
     base = REPO / "results" / "raw" / "e9" / ts
     tasks = args.tasks.split(",")
+    include = write_custom_tasks(base / "tasks")
     if args.policy.startswith("ours"):
         table = json.loads(args.table)
         pcfg = ServerConfig(args.policy, num_spec_tokens=max(1, max(k for *_, k in table)), per_batch_table=table)
@@ -88,7 +108,7 @@ def main() -> None:
     for name, cfg in (("nosd", setting("nosd")), (args.policy, pcfg)):
         with VllmServer(cfg, base) as srv:
             for task in tasks:
-                run_lm_eval(srv.cfg.port, task, base / name / task, args.concurrency)
+                run_lm_eval(srv.cfg.port, task, base / name / task, args.concurrency, include)
 
     report = {"policy": args.policy, "table": args.table, "margin_pp": MARGIN_PP}
     for task in tasks:
