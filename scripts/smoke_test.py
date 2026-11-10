@@ -38,6 +38,10 @@ CONFIGS = [
     ServerConfig("eagle3_k0_table_mrv1", num_spec_tokens=1, per_batch_table=[[1, 512, 0]], model_runner_v2=False),
     ServerConfig("eagle3_k3_mrv1", num_spec_tokens=3, model_runner_v2=False),
     ServerConfig("nosd_mrv1", model_runner_v2=False),
+    # Locked settings check: V2 + patch + fixed 9.5 GiB KV budget
+    ServerConfig("lock_nosd"),
+    ServerConfig("lock_k5", num_spec_tokens=5),
+    ServerConfig("lock_doc_table_k5max", num_spec_tokens=5, per_batch_table=DOC_TABLE),
 ]
 
 PROMPT = "Explain in three sentences why the sky is blue."
@@ -87,7 +91,7 @@ def run_one(cfg: ServerConfig, ts: str, quick: bool) -> dict:
             rec["sample_output"] = reply["choices"][0]["message"]["content"]
             rec["mem_after_load_mib"] = gpu_mem_used_mib()
             rec["bench"] = {}
-            for c in ((1,) if quick else (1, 16)):
+            for c in ((1,) if quick else (1, 16, 32) if cfg.name.startswith("lock") else (1, 16)):
                 m0 = scrape_metrics(cfg.port)
                 rec["bench"][f"c{c}"] = bench(cfg.port, log_dir, cfg.name, c, num_prompts=max(8, 4 * c),
                                                in_len=512, out_len=128)

@@ -31,6 +31,7 @@ class ServerConfig:
     max_model_len: int = 10240
     gpu_memory_utilization: float = 0.90
     max_num_seqs: int = 256
+    kv_cache_memory_bytes: int | None = 9 * 1024**3 + 512 * 1024**2  # fixed KV budget (9.5 GiB) for every config
     extra_args: list[str] = field(default_factory=list)
     extra_env: dict[str, str] = field(default_factory=dict)
 
@@ -55,6 +56,8 @@ class ServerConfig:
             "--seed", "0",
             "--chat-template", str(CHAT_TEMPLATE),
         ]
+        if self.kv_cache_memory_bytes is not None:
+            cmd += ["--kv-cache-memory-bytes", str(self.kv_cache_memory_bytes)]
         spec = self.speculative_config()
         if spec is not None:
             cmd += ["--speculative-config", json.dumps(spec)]

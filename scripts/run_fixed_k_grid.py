@@ -29,6 +29,9 @@ def setting(name: str) -> ServerConfig:
         return ServerConfig("nosd")
     if name == "k0":  # draft resident, speculation disabled for every batch size
         return ServerConfig("k0", num_spec_tokens=1, per_batch_table=[[1, 512, 0]])
+    if name == "doc_table":  # vLLM documented EAGLE-3 table, max K raised to 5 so every entry takes effect
+        return ServerConfig("doc_table", num_spec_tokens=5,
+                            per_batch_table=[[1, 16, 5], [17, 32, 4], [33, 64, 3], [65, 128, 1], [129, 512, 0]])
     if name.startswith("k"):
         return ServerConfig(name, num_spec_tokens=int(name[1:]))
     raise ValueError(name)
