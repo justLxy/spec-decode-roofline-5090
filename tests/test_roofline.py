@@ -34,3 +34,28 @@ def test_attainable_is_capped():
 def test_invalid_tokens():
     with pytest.raises(ValueError):
         gemm_intensity(0, 10, 10)
+
+
+def test_metrics_parser_keeps_positions(monkeypatch):
+    import io
+
+    from specdec5090.bench import server as sv
+
+    text = (
+        '# HELP x\n'
+        'vllm:spec_decode_num_drafts_total{engine="0"} 10.0\n'
+        'vllm:spec_decode_num_accepted_tokens_per_pos_total{engine="0",position="0"} 7.0\n'
+        'vllm:spec_decode_num_accepted_tokens_per_pos_total{engine="0",position="1"} 3.0\n'
+    )
+
+    class R(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    monkeypatch.setattr(sv.urllib.request, "urlopen", lambda *a, **k: R(text.encode()))
+    m = sv.scrape_metrics(8000)
+    assert m["vllm:spec_decode_num_accepted_tokens_per_pos_total"] == 10.0
+    assert m["vllm:spec_decode_num_accepted_tokens_per_pos_total[1]"] == 3.0

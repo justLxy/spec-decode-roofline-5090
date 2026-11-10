@@ -25,7 +25,7 @@ class ServerConfig:
     name: str
     num_spec_tokens: int | None = None  # None = no speculative decoding (no draft loaded)
     per_batch_table: list[list[int]] | None = None  # dynamic SD table [[start_bs, end_bs, K], ...]
-    synthetic_acceptance: float | None = None  # reserved for calibration runs
+    synthetic_acceptance_rates: list[float] | None = None  # per-position unconditional rates (calibration runs)
     model_runner_v2: bool | None = None  # None = vLLM default
     port: int = 8000
     max_model_len: int = 10240
@@ -41,6 +41,9 @@ class ServerConfig:
         cfg: dict = {"method": "eagle3", "model": str(DRAFT_DIR), "num_speculative_tokens": self.num_spec_tokens}
         if self.per_batch_table is not None:
             cfg["num_speculative_tokens_per_batch_size"] = self.per_batch_table
+        if self.synthetic_acceptance_rates is not None:
+            cfg["rejection_sample_method"] = "synthetic"
+            cfg["synthetic_acceptance_rates"] = self.synthetic_acceptance_rates
         return cfg
 
     def command(self) -> list[str]:
@@ -103,9 +106,14 @@ def scrape_metrics(port: int) -> dict[str, float]:
         name_labels, _, value = line.rpartition(" ")
         name = name_labels.split("{", 1)[0]
         try:
-            vals[name] = vals.get(name, 0.0) + float(value)
+            v = float(value)
         except ValueError:
-            pass
+            continue
+        vals[name] = vals.get(name, 0.0) + v
+        pos = re.search(r'position="(\d+)"', name_labels)
+        if pos:  # keep per-position counters (e.g. accepted tokens per draft position)
+            key = f"{name}[{pos.group(1)}]"
+            vals[key] = vals.get(key, 0.0) + v
     return vals
 
 
@@ -118,7 +126,13 @@ def acceptance_from_metrics(before: dict, after: dict) -> dict:
     accepted = d("vllm:spec_decode_num_accepted_tokens_total")
     if drafts <= 0:
         return {}
+    per_pos = []
+    i = 0
+    while f"vllm:spec_decode_num_accepted_tokens_per_pos_total[{i}]" in after:
+        per_pos.append(d(f"vllm:spec_decode_num_accepted_tokens_per_pos_total[{i}]") / drafts)
+        i += 1
     return {
+        "accept_rate_per_pos": per_pos,
         "num_drafts": drafts,
         "draft_tokens": draft_tok,
         "accepted_tokens": accepted,
