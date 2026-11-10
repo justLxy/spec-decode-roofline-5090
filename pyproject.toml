@@ -18,7 +18,7 @@ dependencies = [
 gpu = [
   "vllm==0.29.0",
   "wandb",
-  "lm-eval",
+  "lm-eval[api]",
   "datasets",
   "matplotlib",
   "statsmodels",
