@@ -84,8 +84,9 @@ def main() -> None:
                         clk = current_clocks()
                         row = measure_point(srv.cfg.port, out_dir / "detail", tag, ctx["input_len"],
                                             ctx["output_len"], c, num_prompts_for(c, args.prompt_floor), seed=rep,
-                                            dataset=ds)
-                        row.update({"setting": sname, "context": cname, "dataset": ds or "random", "input_len": ctx["input_len"],
+                                            dataset=ds, ignore_eos=ctx.get("ignore_eos", True))
+                        row.update({"setting": sname, "context": cname, "dataset": ds or "random",
+                                    "ignore_eos": ctx.get("ignore_eos", True), "input_len": ctx["input_len"],
                                     "output_len": ctx["output_len"], "concurrency": c, "rep": rep,
                                     "num_prompts": num_prompts_for(c, args.prompt_floor),
                                     "server": facts, "clocks_before": clk, "ts": ts})

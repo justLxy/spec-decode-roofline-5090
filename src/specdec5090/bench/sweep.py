@@ -56,13 +56,15 @@ def bench_once(port: int, out_file: Path, input_len: int, output_len: int, concu
 
 
 def measure_point(port: int, raw_dir: Path, tag: str, input_len: int, output_len: int, concurrency: int,
-                  num_prompts: int, seed: int, dataset: str | None = None) -> dict:
+                  num_prompts: int, seed: int, dataset: str | None = None, ignore_eos: bool = True) -> dict:
     """One measured repetition with acceptance and preemption counters taken from /metrics around it."""
     m0 = scrape_metrics(port)
     res = bench_once(port, raw_dir / f"{tag}.json", input_len, output_len, concurrency, num_prompts, seed,
-                     dataset=dataset)
+                     ignore_eos=ignore_eos, dataset=dataset)
     m1 = scrape_metrics(port)
     row = {k: res.get(k) for k in KEEP}
+    lens = res.get("output_lens") or []
+    row["mean_output_len"] = sum(lens) / len(lens) if lens else None
     row.update(acceptance_from_metrics(m0, m1))
     row["preemptions"] = m1.get("vllm:num_preemptions_total", 0.0) - m0.get("vllm:num_preemptions_total", 0.0)
     return row

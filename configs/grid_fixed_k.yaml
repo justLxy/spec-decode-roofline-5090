@@ -5,7 +5,7 @@ contexts:
   ctx512:  {input_len: 512,  output_len: 256}
   ctx2k:   {input_len: 2048, output_len: 256, concurrency: [1, 2, 4, 8, 16, 24, 32]}
   # Real prompts (acceptance measured on text the drafter was trained for); input_len is the max for KV checks
-  specbench: {input_len: 2048, output_len: 256, dataset: specbench_calibration}
+  specbench: {input_len: 2048, output_len: 256, dataset: specbench_calibration, ignore_eos: false}
   ctx8k:   {input_len: 8192, output_len: 256, concurrency: [1, 2, 4, 8]}   # small grid
 ignore_eos: true
 temperature: 0.0
