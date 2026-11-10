@@ -1,0 +1,17 @@
+{
+  "policy": "k3",
+  "table": null,
+  "margin_pp": -1.0,
+  "humaneval_instruct_vllm": {
+    "n": 164,
+    "policy_acc": 0.676829268292683,
+    "nosd_acc": 0.6890243902439024,
+    "diff_pp": -1.2195121951219512,
+    "ci_pp": [
+      -3.048780487804878,
+      0.0
+    ],
+    "verdict": "inconclusive",
+    "n_disagree": 2
+  }
+}

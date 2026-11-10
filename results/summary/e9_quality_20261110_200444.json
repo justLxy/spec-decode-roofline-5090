@@ -1,0 +1,29 @@
+{
+  "policy": "k3",
+  "table": null,
+  "margin_pp": -1.0,
+  "gsm8k_cot_llama": {
+    "n": 1319,
+    "policy_acc": 0.8476118271417741,
+    "nosd_acc": 0.849128127369219,
+    "diff_pp": -0.1516300227445034,
+    "ci_pp": [
+      -1.061410159211524,
+      0.7581501137225171
+    ],
+    "verdict": "inconclusive",
+    "n_disagree": 36
+  },
+  "humaneval_instruct": {
+    "n": 164,
+    "policy_acc": 0.04878048780487805,
+    "nosd_acc": 0.04878048780487805,
+    "diff_pp": 0.0,
+    "ci_pp": [
+      -1.8292682926829267,
+      1.8292682926829267
+    ],
+    "verdict": "inconclusive",
+    "n_disagree": 2
+  }
+}
