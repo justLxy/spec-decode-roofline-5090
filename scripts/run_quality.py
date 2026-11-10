@@ -33,8 +33,16 @@ MARGIN_PP = -1.0
 
 
 def run_lm_eval(port: int, task: str, out: Path, concurrency: int) -> None:
-    cmd = ["lm_eval", "--model", "local-chat-completions",
-           "--model_args", (f"model={SERVED_NAME},base_url=http://127.0.0.1:{port}/v1/chat/completions,"
+    # humaneval_instruct ends the chat with a partial assistant turn ("Here is the completed function: ```python
+    # <signature>") that the model must continue. The OpenAI chat endpoint treats it as a finished message, so the
+    # model restarts the code block and hits the "\ndef" stop string with an empty body. Rendering the chat template
+    # client side and using the completions endpoint keeps the prefix as a continuation.
+    if task.startswith("humaneval"):
+        model, endpoint = "local-completions", "completions"
+    else:
+        model, endpoint = "local-chat-completions", "chat/completions"
+    cmd = ["lm_eval", "--model", model,
+           "--model_args", (f"model={SERVED_NAME},base_url=http://127.0.0.1:{port}/v1/{endpoint},"
                             f"num_concurrent={concurrency},max_retries=3,tokenized_requests=False,"
                             f"tokenizer={TARGET_DIR}"),
            "--tasks", task, "--apply_chat_template", "--log_samples", "--output_path", str(out),
