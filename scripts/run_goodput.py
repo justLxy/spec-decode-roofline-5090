@@ -32,7 +32,7 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 def policy(name: str, tables: dict) -> ServerConfig:
-    if name.startswith("ours"):
+    if name.startswith(("ours", "v2")):
         if name not in tables:
             raise ValueError(f"no table given for policy {name}")
         spec = tables[name]
