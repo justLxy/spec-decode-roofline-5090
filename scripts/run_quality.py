@@ -38,12 +38,12 @@ def run_lm_eval(port: int, task: str, out: Path, concurrency: int) -> None:
     # model restarts the code block and hits the "\ndef" stop string with an empty body. Rendering the chat template
     # client side and using the completions endpoint keeps the prefix as a continuation.
     if task.startswith("humaneval"):
-        model, endpoint = "local-completions", "completions"
+        model, endpoint, tokenized = "local-completions", "completions", True  # template rendered client side
     else:
-        model, endpoint = "local-chat-completions", "chat/completions"
+        model, endpoint, tokenized = "local-chat-completions", "chat/completions", False
     cmd = ["lm_eval", "--model", model,
            "--model_args", (f"model={SERVED_NAME},base_url=http://127.0.0.1:{port}/v1/{endpoint},"
-                            f"num_concurrent={concurrency},max_retries=3,tokenized_requests=False,"
+                            f"num_concurrent={concurrency},max_retries=3,tokenized_requests={tokenized},"
                             f"tokenizer={TARGET_DIR}"),
            "--tasks", task, "--apply_chat_template", "--log_samples", "--output_path", str(out),
            "--gen_kwargs", "temperature=0", "--seed", "0"]
