@@ -35,9 +35,14 @@ def policy(name: str, tables: dict) -> ServerConfig:
     if name.startswith("ours"):
         if name not in tables:
             raise ValueError(f"no table given for policy {name}")
-        table = tables[name]
-        k_max = max(k for _, _, k in table)
-        return ServerConfig(name, num_spec_tokens=max(1, k_max), per_batch_table=table)
+        spec = tables[name]
+        # either a plain table, or {"base": table, "pressure": table} for the queue-aware scheduler patch
+        base, pressure = (spec["base"], spec.get("pressure")) if isinstance(spec, dict) else (spec, None)
+        k_max = max(k for _, _, k in base + (pressure or []))
+        cfg = ServerConfig(name, num_spec_tokens=max(1, k_max), per_batch_table=base)
+        if pressure is not None:
+            cfg.extra_env = {"SPECDEC5090_PRESSURE_TABLE": json.dumps(pressure)}
+        return cfg
     return setting(name)
 
 
