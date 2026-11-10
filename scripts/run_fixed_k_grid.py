@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -32,6 +33,9 @@ def setting(name: str) -> ServerConfig:
     if name == "doc_table":  # vLLM documented EAGLE-3 table, max K raised to 5 so every entry takes effect
         return ServerConfig("doc_table", num_spec_tokens=5,
                             per_batch_table=[[1, 16, 5], [17, 32, 4], [33, 64, 3], [65, 128, 1], [129, 512, 0]])
+    m = re.fullmatch(r"dk(\d+)m(\d+)", name)
+    if m:  # dynamic-SD server with max K = m.group(2) whose table pins K = m.group(1) for every batch size
+        return ServerConfig(name, num_spec_tokens=int(m.group(2)), per_batch_table=[[1, 512, int(m.group(1))]])
     if name.startswith("k"):
         return ServerConfig(name, num_spec_tokens=int(name[1:]))
     raise ValueError(name)
