@@ -1,0 +1,23 @@
+{
+  "dk0m3_specbench_c128": {
+    "decode_steps": 43,
+    "all_steps": 64,
+    "batch_median": 128.0,
+    "tokens_per_step_median": 128.0,
+    "kv_tokens_median": 37847.0,
+    "wall_ms_median": 22.977542,
+    "gpu_span_ms_median": 19.023023,
+    "kernel_ms_median": 22.86887,
+    "in_span_kernel_ms_median": 18.978255,
+    "outside_span_kernel_ms_median": 3.887703,
+    "cats_ms_median": {
+      "attention": 4.092087,
+      "gemm": 14.380276,
+      "memory": 0.173218,
+      "norm_act": 0.263618,
+      "other": 0.053537,
+      "sampling": 0.003104
+    },
+    "non_kernel_ms_median": 0.1111380000000004
+  }
+}
