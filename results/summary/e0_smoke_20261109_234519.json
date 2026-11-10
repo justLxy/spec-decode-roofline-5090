@@ -1,0 +1,144 @@
+[
+  {
+    "config": "eagle3_doc_table_mrv2",
+    "cmd": "vllm serve /workspace/models/Llama-3.1-8B-Instruct --served-model-name llama31-8b --port 8000 --dtype bfloat16 --max-model-len 10240 --gpu-memory-utilization 0.9 --max-num-seqs 256 --no-enable-prefix-caching --seed 0 --chat-template /workspace/hpml/configs/chat_templates/llama31_instruct.jinja --speculative-config {\"method\": \"eagle3\", \"model\": \"/workspace/models/EAGLE3-LLaMA3.1-Instruct-8B\", \"num_speculative_tokens\": 3, \"num_speculative_tokens_per_batch_size\": [[1, 16, 5], [17, 32, 4], [33, 64, 3], [65, 128, 1], [129, 512, 0]]}",
+    "VLLM_USE_V2_MODEL_RUNNER": "1",
+    "status": "fail",
+    "error": "RuntimeError: vllm serve exited with 1; see /workspace/hpml/results/raw/e0/20261109_234519/server_eagle3_doc_table_mrv2.log",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/hpml/scripts/smoke_test.py\", line 84, in run_one\n    with VllmServer(cfg, log_dir) as srv:\n  File \"/workspace/hpml/src/specdec5090/bench/server.py\", line 135, in __enter__\n    self.start()\n  File \"/workspace/hpml/src/specdec5090/bench/server.py\", line 152, in start\n    raise RuntimeError(f\"vllm serve exited with {self.proc.returncode}; see {self.log_path}\")\nRuntimeError: vllm serve exited with 1; see /workspace/hpml/results/raw/e0/20261109_234519/server_eagle3_doc_table_mrv2.log\n",
+    "log_tail": "16396)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 58, in build_async_engine_client\n(APIServer pid=16396)     async with build_async_engine_client_from_engine_args(\n(APIServer pid=16396)   File \"/usr/lib/python3.12/contextlib.py\", line 210, in __aenter__\n(APIServer pid=16396)     return await anext(self.gen)\n(APIServer pid=16396)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 94, in build_async_engine_client_from_engine_args\n(APIServer pid=16396)     async_llm = AsyncLLM.from_vllm_config(\n(APIServer pid=16396)                 ^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/v1/engine/async_llm.py\", line 227, in from_vllm_config\n(APIServer pid=16396)     return cls(\n(APIServer pid=16396)            ^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/v1/engine/async_llm.py\", line 156, in __init__\n(APIServer pid=16396)     self.engine_core = EngineCoreClient.make_async_mp_client(\n(APIServer pid=16396)                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/tracing/otel.py\", line 178, in sync_wrapper\n(APIServer pid=16396)     return func(*args, **kwargs)\n(APIServer pid=16396)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 139, in make_async_mp_client\n(APIServer pid=16396)     return AsyncMPClient(*client_args)\n(APIServer pid=16396)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/tracing/otel.py\", line 178, in sync_wrapper\n(APIServer pid=16396)     return func(*args, **kwargs)\n(APIServer pid=16396)            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 991, in __init__\n(APIServer pid=16396)     super().__init__(\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 609, in __init__\n(APIServer pid=16396)     with launch_core_engines(\n(APIServer pid=16396)   File \"/usr/lib/python3.12/contextlib.py\", line 144, in __exit__\n(APIServer pid=16396)     next(self.gen)\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1240, in launch_core_engines\n(APIServer pid=16396)     wait_for_engine_startup(\n(APIServer pid=16396)   File \"/workspace/venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1320, in wait_for_engine_startup\n(APIServer pid=16396)     raise RuntimeError(\n(APIServer pid=16396) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}\n"
+  },
+  {
+    "config": "eagle3_k0_table_mrv1",
+    "cmd": "vllm serve /workspace/models/Llama-3.1-8B-Instruct --served-model-name llama31-8b --port 8000 --dtype bfloat16 --max-model-len 10240 --gpu-memory-utilization 0.9 --max-num-seqs 256 --no-enable-prefix-caching --seed 0 --chat-template /workspace/hpml/configs/chat_templates/llama31_instruct.jinja --speculative-config {\"method\": \"eagle3\", \"model\": \"/workspace/models/EAGLE3-LLaMA3.1-Instruct-8B\", \"num_speculative_tokens\": 1, \"num_speculative_tokens_per_batch_size\": [[1, 512, 0]]}",
+    "VLLM_USE_V2_MODEL_RUNNER": "0",
+    "kv_cache_gib": 10.76,
+    "kv_cache_tokens": 85456,
+    "max_concurrency": 8.35,
+    "model_load_gib": 15.8,
+    "graph_capture_s": 3.0,
+    "cold_start_s": 46.02257251739502,
+    "sample_output": "The sky appears blue because of a phenomenon called Rayleigh scattering, where shorter (blue) wavelengths of light are scattered more than longer (red) wavelengths by the tiny molecules of gases in the Earth's atmosphere. This scattering effect gives the sky its blue color, as the scattered blue light reaches our eyes from all directions.",
+    "mem_after_load_mib": 29404,
+    "bench": {
+      "c1": {
+        "completed": 8,
+        "duration": 11.415597595041618,
+        "output_throughput": 89.70183045386743,
+        "mean_ttft_ms": 66.40069099375978,
+        "median_ttft_ms": 56.9941105786711,
+        "p99_ttft_ms": 130.56381092639637,
+        "mean_tpot_ms": 10.706551191048682,
+        "median_tpot_ms": 10.674219012011106,
+        "p99_tpot_ms": 10.999266069334762,
+        "mean_itl_ms": 10.706556850483304
+      },
+      "c16": {
+        "completed": 64,
+        "duration": 9.501962076872587,
+        "output_throughput": 862.1377283686509,
+        "mean_ttft_ms": 530.981337029516,
+        "median_ttft_ms": 513.021067599766,
+        "p99_ttft_ms": 1062.7272217185237,
+        "mean_tpot_ms": 14.454216609612029,
+        "median_tpot_ms": 14.450528955923057,
+        "p99_tpot_ms": 17.014400682111425,
+        "mean_itl_ms": 14.482728085962595
+      }
+    },
+    "mem_peak_mib": 29404,
+    "status": "ok"
+  },
+  {
+    "config": "eagle3_k3_mrv1",
+    "cmd": "vllm serve /workspace/models/Llama-3.1-8B-Instruct --served-model-name llama31-8b --port 8000 --dtype bfloat16 --max-model-len 10240 --gpu-memory-utilization 0.9 --max-num-seqs 256 --no-enable-prefix-caching --seed 0 --chat-template /workspace/hpml/configs/chat_templates/llama31_instruct.jinja --speculative-config {\"method\": \"eagle3\", \"model\": \"/workspace/models/EAGLE3-LLaMA3.1-Instruct-8B\", \"num_speculative_tokens\": 3}",
+    "VLLM_USE_V2_MODEL_RUNNER": "0",
+    "kv_cache_gib": 9.0,
+    "kv_cache_tokens": 71520,
+    "max_concurrency": 6.98,
+    "model_load_gib": 15.8,
+    "graph_capture_s": 6.0,
+    "cold_start_s": 86.04460740089417,
+    "sample_output": "The sky appears blue because of a phenomenon called Rayleigh scattering, where shorter (blue) wavelengths of light are scattered more than longer (red) wavelengths by the tiny molecules of gases in the Earth's atmosphere. This scattering effect gives the sky its blue color, as the scattered blue light reaches our eyes from all directions.",
+    "mem_after_load_mib": 27998,
+    "bench": {
+      "c1": {
+        "completed": 8,
+        "duration": 8.170780293876305,
+        "output_throughput": 125.32462790211723,
+        "mean_ttft_ms": 66.30820364807732,
+        "median_ttft_ms": 56.72145041171461,
+        "p99_ttft_ms": 130.300136602018,
+        "mean_tpot_ms": 7.513737744847899,
+        "median_tpot_ms": 7.854259751671118,
+        "p99_tpot_ms": 8.864248057875018,
+        "mean_itl_ms": 12.639012944804419,
+        "num_drafts": 604.0,
+        "draft_tokens": 1812.0,
+        "accepted_tokens": 417.0,
+        "acceptance_rate": 0.23013245033112584,
+        "mean_acceptance_length": 1.6903973509933774
+      },
+      "c16": {
+        "completed": 64,
+        "duration": 12.327676636865363,
+        "output_throughput": 664.5209994803232,
+        "mean_ttft_ms": 578.0543388536898,
+        "median_ttft_ms": 146.1254945024848,
+        "p99_ttft_ms": 2162.1563680376858,
+        "mean_tpot_ms": 17.363699208494733,
+        "median_tpot_ms": 16.528912213095644,
+        "p99_tpot_ms": 28.891293861514587,
+        "mean_itl_ms": 26.463934996403015,
+        "num_drafts": 5333.0,
+        "draft_tokens": 15999.0,
+        "accepted_tokens": 2837.0,
+        "acceptance_rate": 0.17732358272392024,
+        "mean_acceptance_length": 1.5319707481717608
+      }
+    },
+    "mem_peak_mib": 27998,
+    "status": "ok"
+  },
+  {
+    "config": "nosd_mrv1",
+    "cmd": "vllm serve /workspace/models/Llama-3.1-8B-Instruct --served-model-name llama31-8b --port 8000 --dtype bfloat16 --max-model-len 10240 --gpu-memory-utilization 0.9 --max-num-seqs 256 --no-enable-prefix-caching --seed 0 --chat-template /workspace/hpml/configs/chat_templates/llama31_instruct.jinja",
+    "VLLM_USE_V2_MODEL_RUNNER": "0",
+    "kv_cache_gib": 10.8,
+    "kv_cache_tokens": 88496,
+    "max_concurrency": 8.64,
+    "model_load_gib": 15.0,
+    "graph_capture_s": 6.0,
+    "cold_start_s": 70.02906680107117,
+    "sample_output": "The sky appears blue because of a phenomenon called Rayleigh scattering, where shorter (blue) wavelengths of light are scattered more than longer (red) wavelengths by the tiny molecules of gases in the Earth's atmosphere. This scattering effect is more pronounced when sunlight enters the atmosphere, causing the blue light to be dispersed in all directions",
+    "mem_after_load_mib": 28506,
+    "bench": {
+      "c1": {
+        "completed": 8,
+        "duration": 10.750503038987517,
+        "output_throughput": 95.25135673060005,
+        "mean_ttft_ms": 52.126193389995024,
+        "median_ttft_ms": 51.590047078207135,
+        "p99_ttft_ms": 56.39993647579104,
+        "mean_tpot_ms": 10.166507223245182,
+        "median_tpot_ms": 10.162119909490304,
+        "p99_tpot_ms": 10.181512940788686,
+        "mean_itl_ms": 10.166510579810573
+      },
+      "c16": {
+        "completed": 64,
+        "duration": 8.432810390833765,
+        "output_throughput": 971.4436374502717,
+        "mean_ttft_ms": 393.84380699993926,
+        "median_ttft_ms": 410.0304380990565,
+        "p99_ttft_ms": 651.1941472697072,
+        "mean_tpot_ms": 13.449203186581604,
+        "median_tpot_ms": 13.316538850373522,
+        "p99_tpot_ms": 15.808543056014955,
+        "mean_itl_ms": 13.449205629871086
+      }
+    },
+    "mem_peak_mib": 28506,
+    "status": "ok"
+  }
+]

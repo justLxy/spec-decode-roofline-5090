@@ -1,0 +1,96 @@
+[
+  {
+    "config": "eagle3_k0_table",
+    "cmd": "vllm serve /workspace/models/Llama-3.1-8B-Instruct --served-model-name llama31-8b --port 8000 --dtype bfloat16 --max-model-len 10240 --gpu-memory-utilization 0.9 --max-num-seqs 256 --no-enable-prefix-caching --seed 0 --chat-template /workspace/hpml/configs/chat_templates/llama31_instruct.jinja --speculative-config {\"method\": \"eagle3\", \"model\": \"/workspace/models/EAGLE3-LLaMA3.1-Instruct-8B\", \"num_speculative_tokens\": 1, \"num_speculative_tokens_per_batch_size\": [[1, 512, 0]]}",
+    "VLLM_USE_V2_MODEL_RUNNER": null,
+    "kv_cache_gib": 11.17,
+    "kv_cache_tokens": 88720,
+    "max_concurrency": 8.66,
+    "model_load_gib": 15.8,
+    "graph_capture_s": 6.0,
+    "cold_start_s": 54.050066232681274,
+    "sample_output": "The sky appears blue because of a phenomenon called Rayleigh scattering, where shorter (blue) wavelengths of light are scattered more than longer (red) wavelengths by the tiny molecules of gases in the Earth's atmosphere. This scattering effect is more pronounced when sunlight enters the atmosphere, causing the blue light to be dispersed in all directions",
+    "mem_after_load_mib": 30116,
+    "bench": {
+      "c1": {
+        "completed": 8,
+        "duration": 11.454622512916103,
+        "output_throughput": 89.39622399999207,
+        "mean_ttft_ms": 55.444607336539775,
+        "median_ttft_ms": 54.89654454868287,
+        "p99_ttft_ms": 61.34463581023738,
+        "mean_tpot_ms": 10.83335598566804,
+        "median_tpot_ms": 10.832278694092171,
+        "p99_tpot_ms": 10.853296280306889,
+        "mean_itl_ms": 10.833359804457258
+      },
+      "c16": {
+        "completed": 64,
+        "duration": 8.937155673047528,
+        "output_throughput": 916.6227264794378,
+        "mean_ttft_ms": 421.6650752532587,
+        "median_ttft_ms": 446.11978402826935,
+        "p99_ttft_ms": 672.2142517194152,
+        "mean_tpot_ms": 14.202906813248617,
+        "median_tpot_ms": 14.049902609659462,
+        "p99_tpot_ms": 16.69295600124114,
+        "mean_itl_ms": 14.202909068480375
+      }
+    },
+    "mem_peak_mib": 30116,
+    "status": "ok"
+  },
+  {
+    "config": "eagle3_doc_table_mrv2",
+    "cmd": "vllm serve /workspace/models/Llama-3.1-8B-Instruct --served-model-name llama31-8b --port 8000 --dtype bfloat16 --max-model-len 10240 --gpu-memory-utilization 0.9 --max-num-seqs 256 --no-enable-prefix-caching --seed 0 --chat-template /workspace/hpml/configs/chat_templates/llama31_instruct.jinja --speculative-config {\"method\": \"eagle3\", \"model\": \"/workspace/models/EAGLE3-LLaMA3.1-Instruct-8B\", \"num_speculative_tokens\": 3, \"num_speculative_tokens_per_batch_size\": [[1, 16, 5], [17, 32, 4], [33, 64, 3], [65, 128, 1], [129, 512, 0]]}",
+    "VLLM_USE_V2_MODEL_RUNNER": "1",
+    "kv_cache_gib": 10.87,
+    "kv_cache_tokens": 86320,
+    "max_concurrency": 8.43,
+    "model_load_gib": 15.8,
+    "graph_capture_s": 11.0,
+    "cold_start_s": 60.033525466918945,
+    "sample_output": "The sky appears blue because of a phenomenon called Rayleigh scattering, where shorter (blue) wavelengths of light are scattered more than longer (red) wavelengths by the tiny molecules of gases in the Earth's atmosphere. This scattering effect gives the sky its blue color, as the scattered blue light reaches our eyes from all directions.",
+    "mem_after_load_mib": 30434,
+    "bench": {
+      "c1": {
+        "completed": 8,
+        "duration": 7.991813305998221,
+        "output_throughput": 128.13112128525842,
+        "mean_ttft_ms": 52.89720403379761,
+        "median_ttft_ms": 52.51038749702275,
+        "p99_ttft_ms": 56.08674671733752,
+        "mean_tpot_ms": 7.445513573521016,
+        "median_tpot_ms": 7.78889415719671,
+        "p99_tpot_ms": 8.77756216449619,
+        "mean_itl_ms": 12.524247103191863,
+        "num_drafts": 604.0,
+        "draft_tokens": 1812.0,
+        "accepted_tokens": 417.0,
+        "acceptance_rate": 0.23013245033112584,
+        "mean_k": 3.0,
+        "mean_acceptance_length": 1.6903973509933774
+      },
+      "c16": {
+        "completed": 64,
+        "duration": 10.382258055964485,
+        "output_throughput": 789.0383725622956,
+        "mean_ttft_ms": 208.0906856463116,
+        "median_ttft_ms": 138.2492936681956,
+        "p99_ttft_ms": 657.7039327798411,
+        "mean_tpot_ms": 17.180255943186044,
+        "median_tpot_ms": 16.201437771775005,
+        "p99_tpot_ms": 28.92785898334618,
+        "mean_itl_ms": 26.057312740735956,
+        "num_drafts": 5359.0,
+        "draft_tokens": 16077.0,
+        "accepted_tokens": 2806.0,
+        "acceptance_rate": 0.17453505007153075,
+        "mean_k": 3.0,
+        "mean_acceptance_length": 1.5236051502145922
+      }
+    },
+    "mem_peak_mib": 30434,
+    "status": "ok"
+  }
+]
