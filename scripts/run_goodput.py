@@ -31,12 +31,13 @@ from specdec5090.tracking.run_meta import SettingRun  # noqa: E402
 REPO = Path(__file__).resolve().parents[1]
 
 
-def policy(name: str, ours_table: list | None) -> ServerConfig:
+def policy(name: str, tables: dict) -> ServerConfig:
     if name.startswith("ours"):
-        if ours_table is None:
-            raise ValueError("--ours-table is required for the 'ours' policy")
-        k_max = max(k for _, _, k in ours_table)
-        return ServerConfig(name, num_spec_tokens=max(1, k_max), per_batch_table=ours_table)
+        if name not in tables:
+            raise ValueError(f"no table given for policy {name}")
+        table = tables[name]
+        k_max = max(k for _, _, k in table)
+        return ServerConfig(name, num_spec_tokens=max(1, k_max), per_batch_table=table)
     return setting(name)
 
 
@@ -49,14 +50,19 @@ def main() -> None:
     ap.add_argument("--rate-hi", type=float, default=14.0)
     ap.add_argument("--split", default="specbench_test")
     ap.add_argument("--max-tokens", type=int, default=256)
-    ap.add_argument("--ours-table", default=None, help="JSON [[start_bs, end_bs, K], ...]")
+    ap.add_argument("--ours-table", default=None, help="JSON [[start_bs, end_bs, K], ...] for a policy named 'ours'")
+    ap.add_argument("--tables", default=None,
+                    help='JSON {"ours_profile": [[...]], "ours_lookup": [[...]]}: one table per ours* policy')
     ap.add_argument("--tag", default="")
     ap.add_argument("--no-wandb", action="store_true")
     args = ap.parse_args()
 
-    slo = yaml.safe_load(open(REPO / "configs" / "slo.yaml"))
+    slo = {k: (str(v) if not isinstance(v, (int, float)) else v)
+           for k, v in yaml.safe_load(open(REPO / "configs" / "slo.yaml")).items()}
     prompts = [json.loads(line) for line in open(REPO / "data" / "processed" / f"{args.split}.jsonl")]
-    ours_table = json.loads(args.ours_table) if args.ours_table else None
+    tables = json.loads(args.tables) if args.tables else {}
+    if args.ours_table:
+        tables["ours"] = json.loads(args.ours_table)
     ts = time.strftime("%Y%m%d_%H%M%S")
     out_dir = REPO / "results" / "raw" / "e7" / f"{ts}{('_' + args.tag) if args.tag else ''}"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -68,7 +74,7 @@ def main() -> None:
 
     summary = []
     for pname in args.policies.split(","):
-        cfg = policy(pname, ours_table)
+        cfg = policy(pname, tables)
         with VllmServer(cfg, out_dir) as srv:
             wb = SettingRun(f"E7-{pname}-{ts}", group=f"E7-{ts}", enabled=not args.no_wandb, config={
                 "experiment": "E7_goodput", "policy": pname, "spec_config": cfg.speculative_config(),
@@ -87,7 +93,7 @@ def main() -> None:
                       flush=True)
             print(f"[e7] wandb {wb.close()}", flush=True)
         (REPO / "results" / "summary" / f"e7_goodput_{ts}{('_' + args.tag) if args.tag else ''}.json").write_text(
-            json.dumps({"args": vars(args), "slo": slo, "rows": summary}, indent=2))
+            json.dumps({"args": vars(args), "slo": slo, "tables": tables, "rows": summary}, indent=2, default=str))
     print("[e7] done", flush=True)
 
 
