@@ -1,4 +1,11 @@
-# SLOs are fixed from baseline (no-SD) measurements before any policy is evaluated. Do not edit afterwards.
-ttft_ms: TODO
-tpot_ms: TODO
-derived_from: TODO   # run id / W&B link of the baseline used
+# SLOs, fixed from the no-SD baseline before any policy is evaluated. Do not edit afterwards.
+# A request counts toward goodput only if it meets both thresholds.
+# TPOT per request = (E2E latency - TTFT) / (output tokens - 1).
+ttft_ms: 1000
+tpot_ms: 20
+adopted: 2026-11-10
+derived_from: >-
+  E1 no-SD baseline (results/summary/e1_nosd.csv; W&B group E2-20261110_001823).
+  TPOT limit is about 2x the single-request no-SD TPOT (10.11 ms at ctx512, 10.21 ms at ctx2k), i.e. ~50 tok/s.
+  No-SD meets it up to concurrency 32 at 512-token context and up to 16 at 2K context.
+  TTFT limit is a 1 s interactive bound; closed-loop TTFT is not used because all requests arrive at once there.
