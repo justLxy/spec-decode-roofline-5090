@@ -30,9 +30,10 @@ from specdec5090.bench.sweep import bench_once  # noqa: E402
 REPO = Path(__file__).resolve().parents[1]
 CONTEXTS = {"ctx512": (512, None), "ctx2k": (2048, None), "specbench": (2048, "specbench_calibration")}
 
+# Attention first: flash-attention kernel names carry "cutlass" in their template arguments.
 CATEGORIES = [
-    ("gemm", ("gemm", "nvjet", "cutlass", "cublas", "sm100_xmma", "sm120", "matmul")),
     ("attention", ("flash", "fmha", "attention", "attn", "batch_prefill", "batch_decode", "paged")),
+    ("gemm", ("gemm", "nvjet", "cutlass", "cublas", "sm100_xmma", "sm120", "matmul")),
     ("norm_act", ("rms", "norm", "silu", "act_and_mul", "rotary", "rope")),
     ("sampling", ("sample", "topk", "top_k", "softmax", "argmax", "rejection", "gumbel", "logits")),
     ("memory", ("copy", "memcpy", "memset", "cat", "index", "gather", "scatter", "fill")),
