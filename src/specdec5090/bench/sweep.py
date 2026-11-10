@@ -15,8 +15,20 @@ KEEP = ("completed", "duration", "request_throughput", "output_throughput", "tot
         "mean_e2el_ms", "median_e2el_ms", "p99_e2el_ms")
 
 
+REPO = Path(__file__).resolve().parents[3]
+
+
+def dataset_args(input_len: int, output_len: int, dataset: str | None) -> list[str]:
+    """`dataset=None` -> fixed-length random prompts; otherwise a JSONL under data/processed (e.g. specbench_calibration)."""
+    if dataset is None:
+        return ["--dataset-name", "random", "--random-input-len", str(input_len),
+                "--random-output-len", str(output_len), "--random-range-ratio", "0"]
+    return ["--dataset-name", "custom", "--dataset-path", str(REPO / "data" / "processed" / f"{dataset}.jsonl"),
+            "--custom-output-len", str(output_len)]
+
+
 def bench_once(port: int, out_file: Path, input_len: int, output_len: int, concurrency: int, num_prompts: int,
-               seed: int, ignore_eos: bool = True) -> dict:
+               seed: int, ignore_eos: bool = True, dataset: str | None = None) -> dict:
     out_file.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         "vllm", "bench", "serve",
@@ -24,10 +36,7 @@ def bench_once(port: int, out_file: Path, input_len: int, output_len: int, concu
         "--base-url", f"http://127.0.0.1:{port}",
         "--model", SERVED_NAME,
         "--tokenizer", str(TARGET_DIR),
-        "--dataset-name", "random",
-        "--random-input-len", str(input_len),
-        "--random-output-len", str(output_len),
-        "--random-range-ratio", "0",
+        *dataset_args(input_len, output_len, dataset),
         "--num-prompts", str(num_prompts),
         "--max-concurrency", str(concurrency),
         "--temperature", "0",
@@ -47,10 +56,11 @@ def bench_once(port: int, out_file: Path, input_len: int, output_len: int, concu
 
 
 def measure_point(port: int, raw_dir: Path, tag: str, input_len: int, output_len: int, concurrency: int,
-                  num_prompts: int, seed: int) -> dict:
+                  num_prompts: int, seed: int, dataset: str | None = None) -> dict:
     """One measured repetition with acceptance and preemption counters taken from /metrics around it."""
     m0 = scrape_metrics(port)
-    res = bench_once(port, raw_dir / f"{tag}.json", input_len, output_len, concurrency, num_prompts, seed)
+    res = bench_once(port, raw_dir / f"{tag}.json", input_len, output_len, concurrency, num_prompts, seed,
+                     dataset=dataset)
     m1 = scrape_metrics(port)
     row = {k: res.get(k) for k in KEEP}
     row.update(acceptance_from_metrics(m0, m1))
@@ -58,5 +68,6 @@ def measure_point(port: int, raw_dir: Path, tag: str, input_len: int, output_len
     return row
 
 
-def warmup(port: int, raw_dir: Path, input_len: int, concurrency: int) -> None:
-    bench_once(port, raw_dir / "warmup.json", input_len, 32, concurrency, max(concurrency, 4), seed=12345)
+def warmup(port: int, raw_dir: Path, input_len: int, concurrency: int, dataset: str | None = None) -> None:
+    bench_once(port, raw_dir / "warmup.json", input_len, 32, concurrency, max(concurrency, 4), seed=12345,
+               dataset=dataset)

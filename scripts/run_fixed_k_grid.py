@@ -74,16 +74,18 @@ def main() -> None:
                 concs = ([int(c) for c in args.concurrency.split(",")] if args.concurrency
                          else ctx.get("concurrency", grid["concurrency"]))
                 for c in concs:
+                    ds = ctx.get("dataset")
                     if c * (ctx["input_len"] + ctx["output_len"]) > facts.get("kv_cache_tokens", 1e12):
                         print(f"[grid] skip {sname} {cname} c={c}: exceeds KV capacity", flush=True)
                         continue
-                    warmup(srv.cfg.port, out_dir / "warmup", ctx["input_len"], c)
+                    warmup(srv.cfg.port, out_dir / "warmup", ctx["input_len"], c, dataset=ds)
                     for rep in range(reps):
                         tag = f"{sname}_{cname}_c{c}_r{rep}"
                         clk = current_clocks()
                         row = measure_point(srv.cfg.port, out_dir / "detail", tag, ctx["input_len"],
-                                            ctx["output_len"], c, num_prompts_for(c, args.prompt_floor), seed=rep)
-                        row.update({"setting": sname, "context": cname, "input_len": ctx["input_len"],
+                                            ctx["output_len"], c, num_prompts_for(c, args.prompt_floor), seed=rep,
+                                            dataset=ds)
+                        row.update({"setting": sname, "context": cname, "dataset": ds or "random", "input_len": ctx["input_len"],
                                     "output_len": ctx["output_len"], "concurrency": c, "rep": rep,
                                     "num_prompts": num_prompts_for(c, args.prompt_floor),
                                     "server": facts, "clocks_before": clk, "ts": ts})
