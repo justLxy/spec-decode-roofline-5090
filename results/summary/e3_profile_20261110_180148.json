@@ -1,0 +1,210 @@
+[
+  {
+    "tag": "k0_specbench_c128",
+    "setting": "k0",
+    "concurrency": 128,
+    "context": "specbench",
+    "iterations": 64,
+    "report": "/workspace/hpml/data/traces/e3_20261110_180148/k0_specbench_c128.nsys-rep",
+    "bench_tpot_ms": 32.001214715373685,
+    "gpu_kernel_ns": 3621075157.0,
+    "category_share": {
+      "attention": 0.09014787096284509,
+      "gemm": 0.8808846054558707,
+      "memory": 0.0025239895897581893,
+      "norm_act": 0.022346004015845397,
+      "other": 0.0024876020544856094,
+      "sampling": 0.0016099279211950364
+    },
+    "category_ns": {
+      "gemm": 3189749361.0,
+      "attention": 326432216.0,
+      "norm_act": 80916560.0,
+      "other": 9007794.0,
+      "memory": 9139556.0,
+      "sampling": 5829670.0
+    },
+    "top_kernels": [
+      [
+        1756738550.0,
+        1810,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(T1::Params)"
+      ],
+      [
+        785010791.0,
+        665,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_tn_align8>(T1::Params)"
+      ],
+      [
+        347886213.0,
+        1236,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_64x256_32x4_tn_align8>(T1::Params)"
+      ],
+      [
+        177256050.0,
+        660,
+        "void flash::flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<(int)128, (int)64, (int)128, (int)4, (bool)0, (bool)0, cutl"
+      ],
+      [
+        136035448.0,
+        1056,
+        "void flash::flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<(int)128, (int)64, (int)64, (int)4, (bool)0, (bool)0, cutla"
+      ],
+      [
+        101558434.0,
+        1213,
+        "std::enable_if<!T7, void>::type internal::gemvx::kernel<int, int, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, float, (b"
+      ],
+      [
+        92303846.0,
+        1120,
+        "void cutlass::Kernel2<cutlass_80_tensorop_s16816gemm_bf16_256x64_32x4_tn_align8>(T1::Params)"
+      ],
+      [
+        48503955.0,
+        2112,
+        "triton_poi_fused_mul_silu_slice_1"
+      ],
+      [
+        39969511.0,
+        1028,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_32x4_tn_align8>(T1::Params)"
+      ],
+      [
+        27985324.0,
+        1056,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x64_32x4_tn_align8>(T1::Params)"
+      ],
+      [
+        17392960.0,
+        409,
+        "std::enable_if<!T7, void>::type internal::gemvx::kernel<int, int, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, float, (b"
+      ],
+      [
+        17236554.0,
+        1920,
+        "triton_red_fused_fused_add_rms_norm_2"
+      ],
+      [
+        12963392.0,
+        2112,
+        "triton_red_fused_fused_add_rms_norm_0"
+      ],
+      [
+        7669074.0,
+        2112,
+        "void vllm::reshape_and_cache_flash_kernel<__nv_bfloat16, __nv_bfloat16, (vllm::Fp8KVCacheDataType)0>(const T1 *, const T"
+      ],
+      [
+        7152837.0,
+        1984,
+        "triton_poi_fused_3"
+      ]
+    ],
+    "gpu_kernel_ms_per_step": 56.579299328125
+  },
+  {
+    "tag": "k3_specbench_c128",
+    "setting": "k3",
+    "concurrency": 128,
+    "context": "specbench",
+    "iterations": 64,
+    "report": "/workspace/hpml/data/traces/e3_20261110_180148/k3_specbench_c128.nsys-rep",
+    "bench_tpot_ms": 38.79663499152182,
+    "gpu_kernel_ns": 5050504540.0,
+    "category_share": {
+      "attention": 0.11296410318641155,
+      "gemm": 0.8595001611462763,
+      "memory": 0.0014416741817244263,
+      "norm_act": 0.021108876579685246,
+      "other": 0.0026299942698398207,
+      "sampling": 0.0023551906360626696
+    },
+    "category_ns": {
+      "gemm": 4340909466.0,
+      "attention": 570525716.0,
+      "norm_act": 106610477.0,
+      "other": 13282798.0,
+      "sampling": 11894901.0,
+      "memory": 7281182.0
+    },
+    "top_kernels": [
+      [
+        2625154385.0,
+        3034,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(T1::Params)"
+      ],
+      [
+        1178647766.0,
+        1820,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_tn_align8>(T1::Params)"
+      ],
+      [
+        548815322.0,
+        2112,
+        "void flash::flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<(int)128, (int)64, (int)128, (int)4, (bool)0, (bool)0, cutl"
+      ],
+      [
+        383623009.0,
+        2413,
+        "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_64x256_32x4_tn_align8>(T1::Params)"
+      ],
+      [
+        112577409.0,
+        1496,
+        "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_16x16_128x2_tn_align8>(T1::Params)"
+      ],
+      [
+        65148655.0,
+        2240,
+        "triton_poi_fused_mul_silu_slice_1"
+      ],
+      [
+        21671250.0,
+        2048,
+        "triton_red_fused_fused_add_rms_norm_2"
+      ],
+      [
+        16975806.0,
+        2240,
+        "triton_red_fused_fused_add_rms_norm_0"
+      ],
+      [
+        12741183.0,
+        168,
+        "void cutlass::Kernel2<cutlass_80_tensorop_s16816gemm_bf16_256x64_32x4_tn_align8>(T1::Params)"
+      ],
+      [
+        11858525.0,
+        108,
+        "std::enable_if<!T7, void>::type internal::gemvx::kernel<int, int, __nv_bfloat16, __nv_bfloat16, __nv_bfloat16, float, (b"
+      ],
+      [
+        11536380.0,
+        94,
+        "void flash::flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<(int)128, (int)64, (int)64, (int)4, (bool)0, (bool)0, cutla"
+      ],
+      [
+        9578812.0,
+        2240,
+        "void vllm::reshape_and_cache_flash_kernel<__nv_bfloat16, __nv_bfloat16, (vllm::Fp8KVCacheDataType)0>(const T1 *, const T"
+      ],
+      [
+        9375416.0,
+        1984,
+        "triton_poi_fused_3"
+      ],
+      [
+        7540640.0,
+        116,
+        "void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_s161616gemm_bf16_32x32_128x2_tn_align8>(T1::Params)"
+      ],
+      [
+        4180631.0,
+        63,
+        "_resample_kernel"
+      ]
+    ],
+    "gpu_kernel_ms_per_step": 78.9141334375
+  }
+]
