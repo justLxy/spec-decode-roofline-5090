@@ -50,6 +50,8 @@ def main() -> None:
     ap.add_argument("--reps", type=int, default=None)
     ap.add_argument("--prompt-floor", type=int, default=16)
     ap.add_argument("--no-wandb", action="store_true")
+    ap.add_argument("--no-kv-skip", action="store_true",
+                    help="do not skip points whose worst-case KV demand exceeds capacity; rely on the preemption counter")
     args = ap.parse_args()
 
     grid = yaml.safe_load(open(args.grid))
@@ -75,7 +77,7 @@ def main() -> None:
                          else ctx.get("concurrency", grid["concurrency"]))
                 for c in concs:
                     ds = ctx.get("dataset")
-                    if c * (ctx["input_len"] + ctx["output_len"]) > facts.get("kv_cache_tokens", 1e12):
+                    if not args.no_kv_skip and c * (ctx["input_len"] + ctx["output_len"]) > facts.get("kv_cache_tokens", 1e12):
                         print(f"[grid] skip {sname} {cname} c={c}: exceeds KV capacity", flush=True)
                         continue
                     warmup(srv.cfg.port, out_dir / "warmup", ctx["input_len"], c, dataset=ds)
