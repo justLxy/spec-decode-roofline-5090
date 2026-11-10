@@ -48,18 +48,20 @@ def main() -> None:
     ap.add_argument("--validate", nargs="*", default=[])
     ap.add_argument("--accept", default="0.61,0.34,0.18,0.11,0.05",
                     help="per-position unconditional acceptance used for the table (Spec-Bench calibration)")
+    ap.add_argument("--kind", default="linear", choices=["linear", "knee"])
+    ap.add_argument("--knee", type=float, default=40.0)
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
     d = prepare(load(args.fit))
-    m = fit(d.B, d.Lbar, d.K, d.T_step)
+    m = fit(d.B, d.Lbar, d.K, d.T_step, args.kind, args.knee)
     res = {"coef": m.as_dict(), "fit": errors(m, d.B, d.Lbar, d.K, d.T_step)}
 
     # leave-one-concurrency-out
     apes = []
     for b in sorted(d.B.unique()):
         tr, te = d[d.B != b], d[d.B == b]
-        mm = fit(tr.B, tr.Lbar, tr.K, tr.T_step)
+        mm = fit(tr.B, tr.Lbar, tr.K, tr.T_step, args.kind, args.knee)
         pred = mm.predict(te.B, te.Lbar, te.K)
         apes += list(np.abs(pred - te.T_step) / te.T_step)
     res["loco_mape"] = float(np.mean(apes))

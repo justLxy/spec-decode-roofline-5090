@@ -17,30 +17,46 @@ from dataclasses import dataclass
 
 import numpy as np
 
-FEATURES = ("B*Lbar", "B*(K+1)", "1", "K", "K*B")
+LINEAR_NAMES = ("alpha_ms_per_ctx_token", "gamma_ms_per_verify_token", "delta_ms", "draft_d0_ms",
+                "draft_d1_ms_per_req")
+KNEE_NAMES = ("alpha_ms_per_ctx_token", "alpha_spec_extra_ms_per_ctx_token", "gemm_lo_ms_per_token",
+              "gemm_hi_step_ms", "gemm_hi_ms_per_token", "delta_ms", "draft_d0_ms", "draft_d1_ms_per_req")
 
 
-def features(B: np.ndarray, Lbar: np.ndarray, K: np.ndarray) -> np.ndarray:
+def features(B, Lbar, K, kind: str = "linear", knee: float = 40.0) -> np.ndarray:
+    """linear: Proposal form. knee: GEMM cost piecewise in M = B(K+1) with a step above `knee` tokens per step
+    (E3 showed a kernel switch between M=32 and M=48), and verify attention priced separately when K > 0."""
     B, Lbar, K = (np.asarray(x, dtype=float) for x in (B, Lbar, K))
-    return np.stack([B * Lbar, B * (K + 1), np.ones_like(B), K, K * B], axis=1)
+    M = B * (K + 1)
+    if kind == "linear":
+        return np.stack([B * Lbar, M, np.ones_like(B), K, K * B], axis=1)
+    hi = (M > knee).astype(float)
+    spec = (K > 0).astype(float)
+    return np.stack([B * Lbar, B * Lbar * spec, M * (1 - hi), hi, M * hi, np.ones_like(B), K, K * B], axis=1)
 
 
 @dataclass
 class CostModel:
-    coef: np.ndarray  # alpha, gamma, delta, d0, d1 (ms units)
+    coef: np.ndarray  # ms units; names depend on `kind`
+    kind: str = "linear"
+    knee: float = 40.0
 
     def predict(self, B, Lbar, K) -> np.ndarray:
-        return features(B, Lbar, K) @ self.coef
+        return features(B, Lbar, K, self.kind, self.knee) @ self.coef
 
     def as_dict(self) -> dict:
-        names = ("alpha_ms_per_ctx_token", "gamma_ms_per_verify_token", "delta_ms", "draft_d0_ms", "draft_d1_ms_per_req")
-        return dict(zip(names, map(float, self.coef)))
+        names = LINEAR_NAMES if self.kind == "linear" else KNEE_NAMES
+        d = dict(zip(names, map(float, self.coef)))
+        d["kind"] = self.kind
+        if self.kind == "knee":
+            d["knee_tokens_per_step"] = self.knee
+        return d
 
 
-def fit(B, Lbar, K, T_step) -> CostModel:
-    X = features(B, Lbar, K)
+def fit(B, Lbar, K, T_step, kind: str = "linear", knee: float = 40.0) -> CostModel:
+    X = features(B, Lbar, K, kind, knee)
     coef, *_ = np.linalg.lstsq(X, np.asarray(T_step, dtype=float), rcond=None)
-    return CostModel(coef)
+    return CostModel(coef, kind, knee)
 
 
 def errors(model: CostModel, B, Lbar, K, T_step) -> dict:
