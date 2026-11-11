@@ -10,9 +10,11 @@
 """Report figures from the committed summaries in results/summary/ (no GPU needed).
 
 Run from the repository root:  uv run scripts/make_figures.py
+Slide variants (no figure titles, PNG at 200 DPI, written to figures/slides/):  uv run scripts/make_figures.py --slides
 """
 
 import json
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -21,13 +23,16 @@ import pandas as pd
 import seaborn as sns
 
 SUMMARY = Path("results/summary")
-OUT = Path("figures")
+SLIDES = "--slides" in sys.argv  # slide titles carry the message, so figure titles are dropped
+OUT = Path("figures/slides") if SLIDES else Path("figures")
 CATEGORICAL = ["#d73027", "#4575b4", "#555555", "#fc8d59", "#91bfdb", "#1f253f"]
 LEGEND = dict(frameon=True, facecolor="white", framealpha=0.8, edgecolor="lightgrey", labelcolor="dimgrey")
 
 
 def finish(ax, title, subtitle=None, pad=7):
     """Apply the shared title/tick/spine conventions to one axes."""
+    if SLIDES and not title.startswith(r"$\bf{("):
+        title, subtitle, pad = "", None, 7
     ax.set_title(title, loc="left", fontsize=13, color="dimgrey", weight="semibold", pad=pad)
     if subtitle:
         ax.annotate(subtitle, xy=(0, 1), xycoords="axes fraction", xytext=(0, 8), textcoords="offset points",
@@ -37,9 +42,9 @@ def finish(ax, title, subtitle=None, pad=7):
 
 
 def save(fig, name):
-    OUT.mkdir(exist_ok=True)
-    for ext in ("pdf", "png"):
-        fig.savefig(OUT / f"{name}.{ext}", dpi=150, bbox_inches="tight")
+    OUT.mkdir(parents=True, exist_ok=True)
+    for ext in (("png",) if SLIDES else ("pdf", "png")):
+        fig.savefig(OUT / f"{name}.{ext}", dpi=200 if SLIDES else 150, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -102,12 +107,14 @@ def fig_tpot_vs_concurrency():
     piv = d.pivot(index="concurrency", columns="setting", values="mean_tpot_ms")
     c = 8
     ax.annotate(f"At {c} concurrent requests the documented table is {piv.loc[c, 'doc_table'] / piv.loc[c, 'k3'] - 1:.0%} "
-                f"slower than K=3", xy=(c, piv.loc[c, "doc_table"]), xytext=(1.1, piv["nosd"].max() * 0.52),
+                f"slower than K=3", xy=(c, piv.loc[c, "doc_table"]), xytext=(1.1, piv["nosd"].max() * 0.58),
                 textcoords="data", ha="left", fontsize=10, color="dimgrey",
                 arrowprops=dict(arrowstyle="-", color="dimgrey", lw=0.8))
     ax.set_xscale("log", base=2)
     ticks = sorted(d["concurrency"].unique())
     ax.set_xticks(ticks, labels=[str(t) for t in ticks])
+    if SLIDES:
+        ax.tick_params(axis="x", labelsize=10)
     ax.set_xlabel("Concurrent requests (closed loop)", fontsize=12, color="dimgrey", labelpad=8)
     ax.set_ylabel("Mean TPOT (ms)", fontsize=12, color="dimgrey", labelpad=8)
     ax.set_ylim(0, None)
@@ -168,17 +175,21 @@ def fig_goodput():
         for b, v, n in zip(bars, vals, names):
             ax.text(b.get_x() + b.get_width() / 2, v * 0.08, f"{v:.2f}", ha="center", va="bottom", fontsize=10,
                     weight="semibold", color="white" if n == "k3" else "dimgrey")
-        ax.set_xticks(range(len(names)), labels=[dict(policies)[n] for n in names], rotation=20, ha="right")
+        short = {"nosd": "No SD", "k3": "K=3", "doc_table": "Doc. table", "ours_profile": "Profile v1",
+                 "ours_lookup": "Lookup v1"}
+        labels = [short[n] for n in names] if SLIDES else [dict(policies)[n] for n in names]
+        ax.set_xticks(range(len(names)), labels=labels, rotation=20, ha="right")
         ax.set_ylim(0, max(np.array(vals) + err[1]) * 1.1)
         ax.grid(axis="x", visible=False)
         if i == 0:
             ax.set_ylabel("Goodput (requests/s meeting TTFT ≤ 1 s and TPOT ≤ 20 ms)", fontsize=11,
                           color="dimgrey", labelpad=8)
         finish(ax, r"$\bf{(" + chr(ord("a") + i) + r")}$" + f"  Held-out traces, {load}")
-    fig.suptitle("SLO goodput by speculation policy on held-out Spec-Bench traces (3 seeds, 95% CI)",
-                 x=0.06, ha="left", fontsize=13, color="dimgrey", weight="semibold", y=1.04)
-    fig.text(0.06, 0.975, "Speculation roughly doubles goodput; no batch-size table beats fixed K=3",
-             ha="left", fontsize=10, color="dimgrey")
+    if not SLIDES:
+        fig.suptitle("SLO goodput by speculation policy on held-out Spec-Bench traces (3 seeds, 95% CI)",
+                     x=0.06, ha="left", fontsize=13, color="dimgrey", weight="semibold", y=1.04)
+        fig.text(0.06, 0.975, "Speculation roughly doubles goodput; no batch-size table beats fixed K=3",
+                 ha="left", fontsize=10, color="dimgrey")
     fig.subplots_adjust(wspace=0.18)
     save(fig, "fig4_goodput")
 
@@ -213,7 +224,7 @@ def fig_step_breakdown():
     ax.set_xlabel("Median decode-step time (ms), 0.5K context", fontsize=12, color="dimgrey", labelpad=8)
     ax.grid(False)
     ax.axvline(0, color="lightgrey", linewidth=0.8, zorder=0)
-    ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9, **LEGEND)
+    ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=11 if SLIDES else 9, **LEGEND)
     finish(ax, "Where a pure decode step spends its time (Nsight Systems, median of 49–62 steps)",
            "GEMM dominates; the GPU is never idle, so the cost of speculation is kernel work, not CPU overhead",
            pad=26)
@@ -232,7 +243,7 @@ def main():
     figures/fig1_gemm_knee, fig2_tpot_vs_concurrency, fig3_optimal_k, fig4_goodput, fig5_step_breakdown
     (PDF and PNG, 150 DPI).
     """
-    sns.set_theme(font_scale=1.0, style="whitegrid", font="DejaVu Sans")
+    sns.set_theme(font_scale=1.15 if SLIDES else 1.0, style="whitegrid", font="DejaVu Sans")
     fig_gemm_knee()
     fig_tpot_vs_concurrency()
     fig_optimal_k()
