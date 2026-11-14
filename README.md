@@ -1,5 +1,7 @@
 # When Does Speculative Decoding Stop Paying Off?
 
+[![Unit Tests](https://github.com/justLxy/spec-decode-roofline-5090/actions/workflows/tests.yml/badge.svg)](https://github.com/justLxy/spec-decode-roofline-5090/actions/workflows/tests.yml)
+
 Roofline-guided speculation-length control for EAGLE-3 in vLLM on a single RTX 5090.
 Course project for High-Performance Machine Learning (Columbia University, Fall 2026).
 
