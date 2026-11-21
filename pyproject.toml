@@ -23,7 +23,7 @@ gpu = [
   "matplotlib",
   "statsmodels",
 ]
-dev = ["pytest", "ruff"]
+dev = ["pytest", "ruff", "aiohttp"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
