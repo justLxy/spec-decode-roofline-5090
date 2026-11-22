@@ -64,21 +64,32 @@ def main() -> None:
     )
     ax.vlines(ridge, throughput.min() * 0.65, peak_tflops, color=GREY, linestyle=":", linewidth=1.2)
     ax.scatter([ridge], [peak_tflops], color=ORANGE, edgecolor="white", s=54, linewidth=0.8, zorder=5)
+    # The ridge label sits at the foot of the dotted line, below the measured curve, so it does not
+    # collide with the point labels near the top of the plot.
     ax.annotate(
         f"Ridge point\n{ridge:.0f} FLOP/byte",
-        xy=(ridge, peak_tflops),
-        xytext=(-12, -48),
+        xy=(ridge, throughput.min() * 0.75),
+        xytext=(-6, 0),
         textcoords="offset points",
         ha="right",
+        va="bottom",
         color=GREY,
-        arrowprops={"arrowstyle": "-", "color": GREY, "linewidth": 0.8},
     )
 
-    label_offsets = {1: (7, 5), 16: (7, 5), 48: (7, -14), 128: (-50, 8), 256: (-50, -16)}
-    for m, offset in label_offsets.items():
+    # Offset in points, horizontal alignment and whether to draw a leader line for each labelled M.
+    # M=128 gets a leader line because its neighbours (M=112, M=160) sit close on both sides.
+    label_offsets = {
+        1: ((7, -12), "left", False),
+        16: ((7, -12), "left", False),
+        48: ((7, -14), "left", False),
+        128: ((30, -40), "left", True),
+        256: ((0, -16), "center", False),
+    }
+    for m, (offset, ha, leader) in label_offsets.items():
         i = int(np.flatnonzero(m_values == m)[0])
+        arrow = {"arrowstyle": "-", "color": GREY, "linewidth": 0.7, "shrinkB": 4} if leader else None
         ax.annotate(f"M={m}", (intensity[i], throughput[i]), xytext=offset, textcoords="offset points",
-                    fontsize=9, color=GREY)
+                    ha=ha, fontsize=9, color=GREY, arrowprops=arrow)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
